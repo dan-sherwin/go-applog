@@ -14,6 +14,8 @@ github.com/dan-sherwin/devlogbus v0.1.5 h1:AD5mQLDLo8wdW7FdFHceHiTFZGsC+AMKCHNih
 github.com/dan-sherwin/devlogbus v0.1.5/go.mod h1:RQEk0yoBgb82XAtAtFLhBepu6yikiSX3by8iIBAS6Rk=
 github.com/dan-sherwin/go-app-settings v0.4.0 h1:nuWDvUjhf579CQUz8ek3NkBX0z7XpXPE8hXkjcoGUnY=
 github.com/dan-sherwin/go-app-settings v0.4.0/go.mod h1:93k0Ufqby8TB79mktoVkj+Zic87+mhnDTs+1Z3LkQdY=
+github.com/dan-sherwin/go-app-settings v0.4.1 h1:rUqreFTmqjdNET4yc8uQX65yxYZajXb/8QQyuixfQ1Y=
+github.com/dan-sherwin/go-app-settings v0.4.1/go.mod h1:93k0Ufqby8TB79mktoVkj+Zic87+mhnDTs+1Z3LkQdY=
 github.com/dan-sherwin/go-devlogbus v0.1.1 h1:eEJmuKjteLTmuzprkoXcZCY60MqP/qZ1zI5mgiShrBE=
 github.com/dan-sherwin/go-devlogbus v0.1.1/go.mod h1:21fQ8EgjeNE47+VbP2wruIhTTbXEljXw7bqN0irl55s=
 github.com/dan-sherwin/go-utilities v1.2.1 h1:poHdYwqyx9wYkDXVQJghwttvv1Y6QqNBIGe3AknYbPA=

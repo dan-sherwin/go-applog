@@ -6,7 +6,6 @@ Opinionated application logging for Dan's Go services.
 package owns the repeated service logging setup:
 
 - `log_level` app setting registration
-- `debug_verbosity` app setting registration
 - platform logger wiring for Linux, macOS, and fallback platforms
 - DevLogBus handler setup
 - standard fields such as app, version, commit, build date, user, and pid
@@ -50,8 +49,7 @@ That exposes both command groups:
 
 ```text
 service logging status
-service logging level debug
-service logging verbosity 2
+service logging level debug3
 service devlogbus status
 service devlogbus enable
 service devlogbus disable
@@ -77,17 +75,16 @@ raw `slog` completely independent.
 
 ## Settings
 
-- `log_level`: `debug`, `info`, `warn`, or `error`
-- `debug_verbosity`: `0`, `1`, `2`, `3`, `4`, or `5`
+- `log_level`: `error`, `warn`, `info`, `debug`, `debug2`, `debug3`, `debug4`, or `debug5`
 
-`Debug` requires `log_level=debug`. `Debug2` also requires
-`debug_verbosity >= 2`. `Debug3` requires `debug_verbosity >= 3`, and so on
-through `Debug5`.
+`Debug` requires `log_level=debug` or higher. `Debug2` requires
+`log_level=debug2` or higher. `Debug3` requires `log_level=debug3`, and so on
+through `Debug5`. The `Debug2` through `Debug5` helpers still emit records at
+standard `slog.LevelDebug`; `applog` applies the extra filtering before emission.
 
 ## Application Logging Commands
 
 ```text
 service logging status
-service logging level debug
-service logging verbosity 2
+service logging level debug3
 ```

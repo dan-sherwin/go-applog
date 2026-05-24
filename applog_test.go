@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestApplogLevelAndVerbosityFiltering(t *testing.T) {
+func TestApplogLevelFiltering(t *testing.T) {
 	resetForTest()
 	var buf bytes.Buffer
 	Setup(SetupOptions{
@@ -30,10 +30,7 @@ func TestApplogLevelAndVerbosityFiltering(t *testing.T) {
 	}
 
 	buf.Reset()
-	if err := SetLevel(LevelDebug); err != nil {
-		t.Fatal(err)
-	}
-	if err := SetDebugVerbosity(2); err != nil {
+	if err := SetLevel(LevelDebug2); err != nil {
 		t.Fatal(err)
 	}
 	Debug("visible debug")
@@ -49,27 +46,27 @@ func TestApplogLevelAndVerbosityFiltering(t *testing.T) {
 		t.Fatalf("debug2 log was not emitted: %s", out)
 	}
 	if strings.Contains(out, "hidden debug3") {
-		t.Fatalf("debug3 log was emitted below verbosity 3: %s", out)
+		t.Fatalf("debug3 log was emitted below debug3 level: %s", out)
 	}
 	if strings.Contains(out, "hidden debug4") {
-		t.Fatalf("debug4 log was emitted below verbosity 4: %s", out)
+		t.Fatalf("debug4 log was emitted below debug4 level: %s", out)
 	}
 	if strings.Contains(out, "hidden debug5") {
-		t.Fatalf("debug5 log was emitted below verbosity 5: %s", out)
+		t.Fatalf("debug5 log was emitted below debug5 level: %s", out)
 	}
 
 	buf.Reset()
-	if err := SetDebugVerbosity(5); err != nil {
+	if err := SetLevel(LevelDebug5); err != nil {
 		t.Fatal(err)
 	}
 	Debug4("visible debug4")
 	Debug5("visible debug5")
 	out = buf.String()
 	if !strings.Contains(out, "visible debug4") {
-		t.Fatalf("debug4 log was not emitted at verbosity 5: %s", out)
+		t.Fatalf("debug4 log was not emitted at debug5 level: %s", out)
 	}
 	if !strings.Contains(out, "visible debug5") {
-		t.Fatalf("debug5 log was not emitted at verbosity 5: %s", out)
+		t.Fatalf("debug5 log was not emitted at debug5 level: %s", out)
 	}
 }
 

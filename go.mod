@@ -5,7 +5,7 @@ go 1.26.2
 require (
 	github.com/alecthomas/kong v1.15.0
 	github.com/coreos/go-systemd/v22 v22.7.0
-	github.com/dan-sherwin/go-app-settings v0.4.0
+	github.com/dan-sherwin/go-app-settings v0.4.1
 	github.com/dan-sherwin/go-devlogbus v0.1.1
 )
 

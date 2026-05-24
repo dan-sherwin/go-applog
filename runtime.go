@@ -55,7 +55,6 @@ type runtimeState struct {
 	devLogBusSetup      bool
 	logger              *slog.Logger
 	level               atomic.Int32
-	debugVerbosity      atomic.Int32
 	lastConfigurationID atomic.Uint64
 }
 
@@ -67,8 +66,7 @@ func newRuntimeState() *runtimeState {
 		output:  os.Stdout,
 		rpcName: defaultRPCName,
 	}
-	state.level.Store(int32(slog.LevelDebug))
-	state.debugVerbosity.Store(1)
+	state.level.Store(rankDebug)
 	return state
 }
 
@@ -224,7 +222,7 @@ func (s *runtimeState) standardAttrs() []any {
 }
 
 func (s *runtimeState) enabled(level slog.Level) bool {
-	return level >= slog.Level(s.level.Load())
+	return s.level.Load() >= requiredRankForSlogLevel(level)
 }
 
 func (s *runtimeState) status() Status {
@@ -235,12 +233,11 @@ func (s *runtimeState) status() Status {
 	devLogBus := !s.disableDevLogBus
 	s.mu.RUnlock()
 	return Status{
-		AppName:        appName,
-		Level:          levelName(slog.Level(s.level.Load())),
-		DebugVerbosity: int(s.debugVerbosity.Load()),
-		Verbose:        verbose,
-		SlogDefault:    slogDefault,
-		DevLogBus:      devLogBus,
-		Generation:     s.lastConfigurationID.Load(),
+		AppName:     appName,
+		Level:       levelName(s.level.Load()),
+		Verbose:     verbose,
+		SlogDefault: slogDefault,
+		DevLogBus:   devLogBus,
+		Generation:  s.lastConfigurationID.Load(),
 	}
 }

@@ -1,11 +1,10 @@
 package applog
 
 type Status struct {
-	AppName        string
-	Level          string
-	DebugVerbosity int
-	Verbose        bool
-	SlogDefault    bool
-	DevLogBus      bool
-	Generation     uint64
+	AppName     string
+	Level       string
+	Verbose     bool
+	SlogDefault bool
+	DevLogBus   bool
+	Generation  uint64
 }

@@ -14,19 +14,14 @@ type CommandDef struct {
 }
 
 type Commands struct {
-	Status    statusCommand    `cmd:"" help:"Show runtime application logging status" default:"1"`
-	Level     levelCommand     `cmd:"" help:"Set runtime application log level"`
-	Verbosity verbosityCommand `cmd:"" help:"Set runtime debug verbosity"`
+	Status statusCommand `cmd:"" help:"Show runtime application logging status" default:"1"`
+	Level  levelCommand  `cmd:"" help:"Set runtime application log level"`
 }
 
 type statusCommand struct{}
 
 type levelCommand struct {
-	Level string `arg:"" enum:"debug,info,warn,error" help:"debug, info, warn, or error" required:""`
-}
-
-type verbosityCommand struct {
-	Verbosity int `arg:"" help:"0, 1, 2, 3, 4, or 5" required:""`
+	Level string `arg:"" enum:"error,warn,info,debug,debug2,debug3,debug4,debug5" help:"error, warn, info, debug, debug2, debug3, debug4, or debug5" required:""`
 }
 
 func (c *statusCommand) Run() error {
@@ -47,26 +42,16 @@ func (c *levelCommand) Run() error {
 	return nil
 }
 
-func (c *verbosityCommand) Run() error {
-	status, err := setRuntimeDebugVerbosity(c.Verbosity)
-	if err != nil {
-		return err
-	}
-	printStatus(runtimeWriter(), status)
-	return nil
-}
-
 func printStatus(writer io.Writer, status Status) {
 	if writer == nil {
 		writer = io.Discard
 	}
-	fmt.Fprintf(writer, "App:             %s\n", status.AppName)
-	fmt.Fprintf(writer, "Level:           %s\n", status.Level)
-	fmt.Fprintf(writer, "Debug Verbosity: %d\n", status.DebugVerbosity)
-	fmt.Fprintf(writer, "Verbose Stdout:  %t\n", status.Verbose)
-	fmt.Fprintf(writer, "slog Default:    %t\n", status.SlogDefault)
-	fmt.Fprintf(writer, "DevLogBus:       %t\n", status.DevLogBus)
-	fmt.Fprintf(writer, "Generation:      %d\n", status.Generation)
+	fmt.Fprintf(writer, "App:            %s\n", status.AppName)
+	fmt.Fprintf(writer, "Level:          %s\n", status.Level)
+	fmt.Fprintf(writer, "Verbose Stdout: %t\n", status.Verbose)
+	fmt.Fprintf(writer, "slog Default:   %t\n", status.SlogDefault)
+	fmt.Fprintf(writer, "DevLogBus:      %t\n", status.DevLogBus)
+	fmt.Fprintf(writer, "Generation:     %d\n", status.Generation)
 }
 
 func runtimeWriter() io.Writer {
