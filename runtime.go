@@ -69,7 +69,6 @@ func newRuntimeState() *runtimeState {
 	}
 	state.level.Store(int32(slog.LevelDebug))
 	state.debugVerbosity.Store(1)
-	state.rebuildLogger()
 	return state
 }
 
