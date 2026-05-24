@@ -6,6 +6,15 @@ import (
 )
 
 type Attr = slog.Attr
+type SlogLogger = slog.Logger
+type SlogLevel = slog.Level
+
+const (
+	SlogLevelDebug = slog.LevelDebug
+	SlogLevelInfo  = slog.LevelInfo
+	SlogLevelWarn  = slog.LevelWarn
+	SlogLevelError = slog.LevelError
+)
 
 func Any(key string, value any) Attr {
 	return slog.Any(key, value)
