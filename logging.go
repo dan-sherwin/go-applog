@@ -17,6 +17,14 @@ func Debug3(msg string, args ...any) {
 	log(context.Background(), slog.LevelDebug, 3, msg, args...)
 }
 
+func Debug4(msg string, args ...any) {
+	log(context.Background(), slog.LevelDebug, 4, msg, args...)
+}
+
+func Debug5(msg string, args ...any) {
+	log(context.Background(), slog.LevelDebug, 5, msg, args...)
+}
+
 func Info(msg string, args ...any) {
 	log(context.Background(), slog.LevelInfo, 0, msg, args...)
 }

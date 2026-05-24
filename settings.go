@@ -45,8 +45,8 @@ func DebugVerbosity() int {
 }
 
 func SetDebugVerbosity(value int) error {
-	if value < 0 || value > 3 {
-		return fmt.Errorf("debug verbosity must be between 0 and 3")
+	if value < 0 || value > 5 {
+		return fmt.Errorf("debug verbosity must be between 0 and 5")
 	}
 	defaultRuntime.debugVerbosity.Store(int32(value))
 	return nil
@@ -61,7 +61,7 @@ func registerSettingsHandlers() {
 	})
 	app_settings.RegisterSetting(&app_settings.Setting{
 		Name:        settingDebugVerbosity,
-		Description: "Debug verbosity (0|1|2|3)",
+		Description: "Debug verbosity (0|1|2|3|4|5)",
 		GetFunc: func() string {
 			return strconv.Itoa(DebugVerbosity())
 		},

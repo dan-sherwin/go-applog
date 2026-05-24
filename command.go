@@ -26,7 +26,7 @@ type levelCommand struct {
 }
 
 type verbosityCommand struct {
-	Verbosity int `arg:"" help:"0, 1, 2, or 3" required:""`
+	Verbosity int `arg:"" help:"0, 1, 2, 3, 4, or 5" required:""`
 }
 
 func (c *statusCommand) Run() error {

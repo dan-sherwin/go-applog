@@ -65,6 +65,9 @@ applog.Info("gRPC reflection disabled")
 applog.Debug("Starting signal handler")
 applog.Debug2("executing scheduled automation rule", "rule", ruleName)
 applog.Debug3("rule evaluation details", "rule", ruleName, "state", state)
+applog.Debug4("deep loop detail", "iteration", i)
+applog.Debug5("painfully detailed trace", "state", state)
+applog.Error("database ping failed", applog.String("error", err.Error()))
 ```
 
 Plain `slog` remains available. By default `Setup` also configures the process
@@ -75,10 +78,11 @@ raw `slog` completely independent.
 ## Settings
 
 - `log_level`: `debug`, `info`, `warn`, or `error`
-- `debug_verbosity`: `0`, `1`, `2`, or `3`
+- `debug_verbosity`: `0`, `1`, `2`, `3`, `4`, or `5`
 
 `Debug` requires `log_level=debug`. `Debug2` also requires
-`debug_verbosity >= 2`. `Debug3` requires `debug_verbosity >= 3`.
+`debug_verbosity >= 2`. `Debug3` requires `debug_verbosity >= 3`, and so on
+through `Debug5`.
 
 ## Application Logging Commands
 
