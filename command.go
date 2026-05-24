@@ -4,7 +4,14 @@ import (
 	"fmt"
 	"io"
 	"os"
+
+	godevlogbus "github.com/dan-sherwin/go-devlogbus"
 )
+
+type CommandDef struct {
+	Logging Commands `cmd:"" name:"logging" help:"Manage runtime application logging" group:"Logging"`
+	godevlogbus.CommandDef
+}
 
 type Commands struct {
 	Status    statusCommand    `cmd:"" help:"Show runtime application logging status" default:"1"`

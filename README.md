@@ -42,8 +42,20 @@ Embed the commands:
 
 ```go
 type Commands struct {
-	AppLog applog.Commands `cmd:"" name:"logging" help:"Manage runtime application logging"`
+	applog.CommandDef
 }
+```
+
+That exposes both command groups:
+
+```text
+service logging status
+service logging level debug
+service logging verbosity 2
+service devlogbus status
+service devlogbus enable
+service devlogbus disable
+service devlogbus setEndpoint /tmp/devlogbus/devlogbus.sock
 ```
 
 Then log through `applog`:
@@ -68,7 +80,7 @@ raw `slog` completely independent.
 `Debug` requires `log_level=debug`. `Debug2` also requires
 `debug_verbosity >= 2`. `Debug3` requires `debug_verbosity >= 3`.
 
-## Commands
+## Application Logging Commands
 
 ```text
 service logging status
