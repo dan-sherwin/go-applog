@@ -9,8 +9,8 @@ import (
 )
 
 type CommandDef struct {
-	Logging Commands `cmd:"" name:"logging" help:"Manage runtime application logging" group:"Logging"`
-	godevlogbus.CommandDef
+	Logging                Commands `cmd:"" name:"logging" help:"Manage runtime application logging" group:"Logging"`
+	godevlogbus.CommandDef `group:"Logging"`
 }
 
 type Commands struct {
