@@ -8,32 +8,17 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
-	"time"
-
-	godevlogbus "github.com/dan-sherwin/go-devlogbus"
 )
 
-const defaultRPCName = "AppLog"
-
-type RegisterRPCFunc = godevlogbus.RegisterRPCFunc
-type CallRPCFunc = godevlogbus.CallRPCFunc
-
 type SetupOptions struct {
-	AppName               string
-	Version               string
-	Commit                string
-	BuildDate             string
-	Verbose               bool
-	Output                io.Writer
-	DisableSlogDefault    bool
-	DisableDevLogBus      bool
-	RPCName               string
-	DevLogBusRPCName      string
-	RegisterRPC           RegisterRPCFunc
-	CallRPC               CallRPCFunc
-	QueueSize             int
-	PublishTimeout        time.Duration
-	DisableRPCPersistence bool
+	AppName            string
+	Version            string
+	Commit             string
+	BuildDate          string
+	Verbose            bool
+	Output             io.Writer
+	DisableSlogDefault bool
+	Handlers           []slog.Handler
 }
 
 type runtimeState struct {
@@ -45,14 +30,7 @@ type runtimeState struct {
 	output              io.Writer
 	verbose             bool
 	disableSlogDefault  bool
-	disableDevLogBus    bool
-	rpcName             string
-	callRPC             CallRPCFunc
-	queueSize           int
-	publishTimeout      time.Duration
-	settingsRegistered  bool
-	rpcRegistered       bool
-	devLogBusSetup      bool
+	handlers            []slog.Handler
 	logger              *slog.Logger
 	level               atomic.Int32
 	lastConfigurationID atomic.Uint64
@@ -64,7 +42,6 @@ func newRuntimeState() *runtimeState {
 	state := &runtimeState{
 		appName: "unknown",
 		output:  os.Stdout,
-		rpcName: defaultRPCName,
 	}
 	state.level.Store(rankDebug)
 	return state
@@ -83,10 +60,6 @@ func (s *runtimeState) setup(options SetupOptions) {
 	if output == nil {
 		output = os.Stdout
 	}
-	rpcName := strings.TrimSpace(options.RPCName)
-	if rpcName == "" {
-		rpcName = defaultRPCName
-	}
 
 	s.mu.Lock()
 	s.appName = appName
@@ -96,43 +69,9 @@ func (s *runtimeState) setup(options SetupOptions) {
 	s.output = output
 	s.verbose = options.Verbose
 	s.disableSlogDefault = options.DisableSlogDefault
-	s.disableDevLogBus = options.DisableDevLogBus
-	s.rpcName = rpcName
-	s.callRPC = options.CallRPC
-	s.queueSize = options.QueueSize
-	s.publishTimeout = options.PublishTimeout
-	registerSettings := !s.settingsRegistered
-	if registerSettings {
-		s.settingsRegistered = true
-	}
-	registerRPC := options.RegisterRPC != nil && !s.rpcRegistered
-	if registerRPC {
-		s.rpcRegistered = true
-	}
-	setupDevLogBus := !options.DisableDevLogBus && !s.devLogBusSetup
-	if setupDevLogBus {
-		s.devLogBusSetup = true
-	}
+	s.handlers = append([]slog.Handler(nil), options.Handlers...)
 	s.mu.Unlock()
 
-	if registerSettings {
-		registerSettingsHandlers()
-	}
-	if setupDevLogBus {
-		godevlogbus.Setup(godevlogbus.SetupOptions{
-			Source:                appName,
-			RPCName:               options.DevLogBusRPCName,
-			RegisterRPC:           options.RegisterRPC,
-			CallRPC:               options.CallRPC,
-			Output:                output,
-			QueueSize:             options.QueueSize,
-			PublishTimeout:        options.PublishTimeout,
-			DisableRPCPersistence: options.DisableRPCPersistence,
-		})
-	}
-	if registerRPC {
-		options.RegisterRPC(rpcName, newRPCReceiver(s, !options.DisableRPCPersistence))
-	}
 	s.rebuildLogger()
 }
 
@@ -151,6 +90,10 @@ func With(args ...any) *slog.Logger {
 	return Logger().With(args...)
 }
 
+func RuntimeStatus() Status {
+	return defaultRuntime.status()
+}
+
 func (s *runtimeState) currentLogger() *slog.Logger {
 	s.mu.RLock()
 	logger := s.logger
@@ -167,19 +110,19 @@ func (s *runtimeState) rebuildLogger() {
 		output:             s.output,
 		verbose:            s.verbose,
 		disableSlogDefault: s.disableSlogDefault,
-		disableDevLogBus:   s.disableDevLogBus,
 		appName:            s.appName,
 		version:            s.version,
 		commit:             s.commit,
 		buildDate:          s.buildDate,
-		queueSize:          s.queueSize,
-		publishTimeout:     s.publishTimeout,
+		handlers:           append([]slog.Handler(nil), s.handlers...),
 	}
 	s.mu.RUnlock()
 
 	handlers := platformHandlers(options)
-	if !options.disableDevLogBus {
-		handlers = godevlogbus.WithHandler(handlers, slog.LevelDebug)
+	for _, handler := range options.handlers {
+		if handler != nil {
+			handlers = append(handlers, handler)
+		}
 	}
 	if len(handlers) == 0 {
 		handlers = append(handlers, slog.NewTextHandler(io.Discard, &slog.HandlerOptions{Level: slog.LevelDebug}))
@@ -230,14 +173,12 @@ func (s *runtimeState) status() Status {
 	appName := s.appName
 	verbose := s.verbose
 	slogDefault := !s.disableSlogDefault
-	devLogBus := !s.disableDevLogBus
 	s.mu.RUnlock()
 	return Status{
 		AppName:     appName,
 		Level:       levelName(s.level.Load()),
 		Verbose:     verbose,
 		SlogDefault: slogDefault,
-		DevLogBus:   devLogBus,
 		Generation:  s.lastConfigurationID.Load(),
 	}
 }

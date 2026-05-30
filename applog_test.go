@@ -13,7 +13,6 @@ func TestApplogLevelFiltering(t *testing.T) {
 	Setup(SetupOptions{
 		AppName:            "test_app",
 		Output:             &buf,
-		DisableDevLogBus:   true,
 		DisableSlogDefault: true,
 	})
 
@@ -67,6 +66,26 @@ func TestApplogLevelFiltering(t *testing.T) {
 	}
 	if !strings.Contains(out, "visible debug5") {
 		t.Fatalf("debug5 log was not emitted at debug5 level: %s", out)
+	}
+}
+
+func TestSetupAddsHandlers(t *testing.T) {
+	resetForTest()
+	var buf bytes.Buffer
+	Setup(SetupOptions{
+		AppName:            "test_app",
+		DisableSlogDefault: true,
+		Handlers: []slog.Handler{
+			slog.NewTextHandler(&buf, &slog.HandlerOptions{Level: slog.LevelDebug}),
+		},
+	})
+
+	if err := SetLevel(LevelInfo); err != nil {
+		t.Fatal(err)
+	}
+	Info("extra handler message")
+	if !strings.Contains(buf.String(), "extra handler message") {
+		t.Fatalf("extra handler did not receive log output: %s", buf.String())
 	}
 }
 

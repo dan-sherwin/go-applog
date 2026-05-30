@@ -1,19 +1,18 @@
 # GoAppLog
 
-Opinionated application logging for Dan's Go services.
+Opinionated application logging for Dan's Go services and CLIs.
 
 `applog` wraps the standard library `slog` package without replacing it. The
-package owns the repeated service logging setup:
+package owns only the reusable public logging core:
 
-- `log_level` app setting registration
 - platform logger wiring for Linux, macOS, and fallback platforms
-- DevLogBus handler setup
 - standard fields such as app, version, commit, build date, user, and pid
-- Kong command handlers for runtime logging controls
 - helper functions for normal and noisy debug logging
+- runtime log-level filtering independent of `slog.LevelVar`
 
-The package does not use `slog.LevelVar`. Runtime filtering is controlled by
-`applog` before records are emitted.
+App settings, Kong command trees, RPC receivers, and DevLogBus publishing live
+outside this module so public SDK consumers can use `go-applog` without pulling
+template/runtime dependencies.
 
 ## Usage
 
@@ -21,39 +20,21 @@ Register logging once from the app setup path:
 
 ```go
 applog.Setup(applog.SetupOptions{
-	AppName:     consts.APPNAME,
-	Version:     consts.Version,
-	Commit:      consts.Commit,
-	BuildDate:   consts.BuildDate,
-	RegisterRPC: rpc.RegisterName,
-	CallRPC:     rpc.Call,
+	AppName:   consts.APPNAME,
+	Version:   consts.Version,
+	Commit:    consts.Commit,
+	BuildDate: consts.BuildDate,
 })
 ```
 
-After `app_settings.Setup` has loaded saved settings and before Kong parses the
-CLI, refresh Kong vars:
+Attach additional `slog.Handler` instances when another module owns an
+integration sink:
 
 ```go
-applog.ConfigureKongVars(&vars)
-```
-
-Embed the commands:
-
-```go
-type Commands struct {
-	applog.CommandDef
-}
-```
-
-That exposes both command groups:
-
-```text
-service logging status
-service logging level debug3
-service devlogbus status
-service devlogbus enable
-service devlogbus disable
-service devlogbus setEndpoint /tmp/devlogbus/devlogbus.sock
+applog.Setup(applog.SetupOptions{
+	AppName:  consts.APPNAME,
+	Handlers: extraHandlers,
+})
 ```
 
 Then log through `applog`:
@@ -73,18 +54,19 @@ default `slog` logger so existing `slog.Info` calls continue to use the common
 handlers during migration. Set `DisableSlogDefault` when an app wants to keep
 raw `slog` completely independent.
 
-## Settings
+## Levels
 
-- `log_level`: `error`, `warn`, `info`, `debug`, `debug2`, `debug3`, `debug4`, or `debug5`
+- `error`
+- `warn`
+- `info`
+- `debug`
+- `debug2`
+- `debug3`
+- `debug4`
+- `debug5`
 
 `Debug` requires `log_level=debug` or higher. `Debug2` requires
 `log_level=debug2` or higher. `Debug3` requires `log_level=debug3`, and so on
 through `Debug5`. The `Debug2` through `Debug5` helpers still emit records at
-standard `slog.LevelDebug`; `applog` applies the extra filtering before emission.
-
-## Application Logging Commands
-
-```text
-service logging status
-service logging level debug3
-```
+standard `slog.LevelDebug`; `applog` applies the extra filtering before
+emission.

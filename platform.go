@@ -4,20 +4,17 @@ import (
 	"io"
 	"log/slog"
 	"os"
-	"time"
 )
 
 type loggerOptions struct {
 	output             io.Writer
 	verbose            bool
 	disableSlogDefault bool
-	disableDevLogBus   bool
 	appName            string
 	version            string
 	commit             string
 	buildDate          string
-	queueSize          int
-	publishTimeout     time.Duration
+	handlers           []slog.Handler
 }
 
 func outputWriter(options loggerOptions) io.Writer {
